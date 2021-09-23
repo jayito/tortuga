@@ -23,7 +23,7 @@ const Home = () => {
         <Tokenomics />
         <Quest />
         <Map />
-        <Image fluid src={TreasureMapImg} alt="" />
+        <Image className="fluidImage" src={TreasureMapImg} alt="" />
         <Image className="fullWidthImage" src={ExplainedMapImg} alt="" />
         <HowToBuy />
         <Community />
