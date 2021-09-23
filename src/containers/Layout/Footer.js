@@ -1,4 +1,5 @@
 const Footer = () => {
+
     const year = new Date().getFullYear();
     
     return (
@@ -42,11 +43,11 @@ const Footer = () => {
                     </small>
                 </div>
             </div>
-            <div class="scroll-to-top d-lg-none position-fixed">
-                <a class="js-scroll-trigger d-block text-center text-white rounded" href="#page-top"><i class="fa fa-chevron-up"></i></a>
+            <div className="scroll-to-top d-lg-none position-fixed">
+                <a className="js-scroll-trigger d-block text-center text-white rounded" href="#page-top"><i className="fa fa-chevron-up"></i></a>
             </div>
         </div>
-    );
+  );
 }
 
 export default Footer;

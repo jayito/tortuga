@@ -1,7 +1,9 @@
+import { Container } from "react-bootstrap";
+
 const Community = () => {
   return (
     <section className="page-section" id="community">
-        <div className="container">
+        <Container>
             <h2 className="page-section-heading text-center text-uppercase text-secondary mb-0">Community</h2>
             <div className="divider-custom">
                 <div className="divider-custom-line"></div>
@@ -9,7 +11,7 @@ const Community = () => {
                 <div className="divider-custom-line"></div>
             </div>
             <div className="community-content"></div>
-        </div>
+        </Container>
     </section>
   );
 }
