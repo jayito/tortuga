@@ -10858,6 +10858,25 @@ form .row:first-child .floating-label-form-group {
   padding: 5px 8px;
   background-color: #0277bc;
 }
+.account-info {
+  position: relative;
+  height: 60px;
+  display: flex;
+  align-items: center;
+}
+.account-info .btn-disconnect {
+  position: absolute;
+  width: 100%;    
+  top: 45px;
+  text-align: center;
+  padding: 5px 8px;
+  cursor: pointer;
+  display:none;
+  z-index: 100;
+}
+.account-info:hover .btn-disconnect {
+  display: block;
+}
 .hidden {
   display: none;
 }

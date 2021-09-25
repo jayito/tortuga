@@ -1,36 +1,161 @@
 import { useEffect, useState } from 'react';
+import { useHistory } from "react-router-dom";
 import { Container, Image, Navbar, Nav } from 'react-bootstrap';
+
 import Web3 from 'web3';
+import Web3Modal from "web3modal";
+import WalletConnectProvider from "@walletconnect/web3-provider";
+import Fortmatic from "fortmatic";
+import Torus from "@toruslabs/torus-embed";
+import Authereum from "authereum";
+
 import { Link, scroller } from "react-scroll";
 import TortugaImg from '../../assets/img/tortuga.png';
 import TraderjoeImg from '../../assets/img/traderjoe.png';
 
 const Navigation = () => {
+    const history = useHistory();
     const [ walletAddress, setWalletAddress ] = useState("");
     const [ showWalletAddress, setShowWalletAddress ] = useState(false);
     const [ navBarShrink, setNavbarShrink ] = useState(false);
     
-    useEffect(() => {
-        connect();
-    }, []);
+    const providerOptions = {
+        walletconnect: {
+          package: WalletConnectProvider,
+          options: {
+            infuraId: "27e484dcd9e3efcfd25a83a78777cdf1",
+            qrcodeModalOptions: {
+                mobileLinks: [
+                  "rainbow",
+                  "metamask",
+                  "argent",
+                  "trust",
+                  "imtoken",
+                  "pillar",
+                ],
+                desktopLinks: [
+                  "encrypted ink",
+                ]
+            }
+          }
+        },
+        torus: {
+          package: Torus
+        },
+        authereum: {
+          package: Authereum
+        }
+    };
+      
+      const web3Modal = new Web3Modal({
+        network: "mainnet", 
+        cacheProvider: true, 
+        providerOptions
+    });
+    
+      const [walletInfo, setWalletInfo] = useState({
+        address: '',
+        chainId: 0,
+        networkId: 0,
+        web3: '',
+        provider: '',
+        connected: false
+    });
 
     const connect = async () => {
-        if (window.ethereum) {
-            await window.ethereum.send('eth_requestAccounts');
-            window.web3 = new Web3(window.ethereum);
-            const accounts = await window.web3.eth.getAccounts();
-            if(accounts) {
-                const wallet_txt = getShortText(accounts[0]);
-                setWalletAddress(wallet_txt);
-                setShowWalletAddress(true);
-            } else {
-                setShowWalletAddress(false);
-            }
+        const provider  = await web3Modal.connect();
+        const web3      = getWeb3(provider);
+        const accounts  = await web3.eth.getAccounts();
+        const address   = accounts[0];
+        const networkId = await web3.eth.net.getId();
+        const chainId   = await web3.eth.chainId();
+
+        setWalletInfo((prevStatus) => ({
+            ...prevStatus,
+            address: address,
+            chainId: chainId,
+            networkId: networkId,
+            web3: web3,
+            provider: provider,
+            connected: true
+        }));
+        
+        if (!provider.on) {
+        return;
+        }
+
+        provider.on("close", () => resetWallet());
+
+        provider.on("accountsChanged", async (accounts) => {
+            setWalletInfo((prevStatus) => ({
+                ...prevStatus,
+                address: accounts[0]
+            }));
+        });
+
+        provider.on("chainChanged", async (chainId) => {
+            const networkId = await web3.eth.net.getId();
+            setWalletInfo((prevStatus) => ({
+                ...prevStatus,
+                chainId: chainId,
+                networkId: networkId
+            }));
+        });
+
+        provider.on("networkChanged", async (networkId) => {
+            setWalletInfo((prevStatus) => ({
+                ...prevStatus,
+                networkId: networkId
+            }));
+        });
+
+        if(address) {
+            const wallet_txt = getShortText(address);
+            setWalletAddress(wallet_txt);
+            setShowWalletAddress(true);
+            history.push("/default");
         } else {
-            alert('MetaMask is uninstalled!');
+            setShowWalletAddress(false);
         }
     }
 
+    const getWeb3 = (provider) => {
+        const web3 = new Web3(provider);
+      
+        web3.eth.extend({
+          methods: [
+            {
+              name: "chainId",
+              call: "eth_chainId",
+              outputFormatter: web3.utils.hexToNumber
+            }
+          ]
+        });
+    
+        return web3;
+    }
+    
+    const resetWallet = async () => {
+        const web3 = walletInfo.web3;
+        if (web3 && web3.currentProvider && web3.currentProvider.close) {
+          await web3.currentProvider.close();
+        }
+        await web3Modal.clearCachedProvider();
+        
+        setWalletInfo((prevStatus) => ({
+          ...prevStatus,
+          address: '',
+          chainId: 0,
+          networkId: 0,
+          web3: '',
+          provider: '',
+          connected: false
+        }));
+
+        setShowWalletAddress(false);
+        history.push("/");
+    };
+    
     const getShortText = (text) => {
         var trim_text = text.trim();
         var length = trim_text.length;
@@ -42,8 +167,8 @@ const Navigation = () => {
     const handleScroll = () => {
         if(window.scrollY > 300) setNavbarShrink(true)
         else setNavbarShrink(false);
-        
     }
+
     const handleSelectLink = (to, eventKey) => {
         let offset = -70;
         if(window.outerWidth < 768 ){
@@ -76,7 +201,10 @@ const Navigation = () => {
                         <li className="nav-item mx-0 mx-lg-1">
                             <div className="wallet-connect">
                                 {showWalletAddress ? (
-                                    <div className="wallet-address">{walletAddress}</div>
+                                    <div className="account-info">
+                                        <div className="wallet-address">{walletAddress}</div>
+                                        <div onClick={resetWallet} className="btn-disconnect">Log Out</div>
+                                    </div>
                                 ) : (
                                     <div onClick={connect} className="btn-connect">Connect</div>
                                 )}

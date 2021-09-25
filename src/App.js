@@ -6,6 +6,7 @@ import {
 import Navbar from './containers/Layout/Navbar';
 import Footer from './containers/Layout/Footer';
 import Home from './containers/Home';
+import Default from './containers/Default';
 import './App.css';
 import './assets/css/styles.css';
 
@@ -15,7 +16,8 @@ function App() {
       <Router >
         <Navbar />
         <Switch>
-          <Route path='/' component={Home} />
+          <Route exact path='/' component={Home} />
+          <Route path='/default' component={Default} />
         </Switch>
         <Footer />
       </Router>
