@@ -1,4 +1,5 @@
 import { Container, Image } from "react-bootstrap";
+import FeaturesImg from '../../../assets/img/features.png';
 
 const Tokenomics = () => {
     return (
@@ -11,7 +12,7 @@ const Tokenomics = () => {
                     <div className="divider-custom-line" ref={(el) => el && el.style.setProperty("background-color", "#ffffff" , "important")}></div>
                 </div>
             </Container>
-            <Image id="imgfeatures" src="/img/features.png" alt=""/>
+            <Image id="imgfeatures" src={FeaturesImg} alt=""/>
             <Container>
                 <h2 className="page-section-heading text-center text-uppercase text-white mb-0">Whales hunters</h2>
                 <div className="divider-custom">
